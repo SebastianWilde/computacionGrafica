@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1490667401 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\trabajo1\main.cpp
+	<windows.h>
+	<math.h>
+	<GL/glut.h>
+	<math.h>
+	<iostream>
+
+976692172 d:\tp1 2017\tp1\glut\include\gl\glut.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
