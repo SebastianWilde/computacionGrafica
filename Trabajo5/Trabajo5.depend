@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1495688886 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\trabajo5\main.cpp
+	<windows.h>
+	<math.h>
+	<stdlib.h>
+	<stdio.h>
+	<iostream>
+	<vector>
+	<sstream>
+	<string>
+	<GL/glut.h>
+	<fstream>
+	"Terreno.h"
+
+1495689884 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\trabajo5\terreno.h
+
