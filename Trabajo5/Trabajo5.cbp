@@ -43,6 +43,8 @@
 			<Add directory="C:/Users/Alumno-G/Desktop/glut/lib" />
 		</Linker>
 		<Unit filename="Terreno.h" />
+		<Unit filename="TextureManager.cpp" />
+		<Unit filename="TextureManager.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
