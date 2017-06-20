@@ -1,0 +1,67 @@
+# depslib dependency file v1.0
+1497570178 source:c:\users\alumno-g\desktop\boid\main.cpp
+	<windows.h>
+	<math.h>
+	<GL/glut.h>
+	<iostream>
+	<windows.h>
+	<math.h>
+	<stdlib.h>
+	<stdio.h>
+	<iostream>
+	<vector>
+	<time.h>
+	"Boid.h"
+
+976692172 c:\users\alumno-g\desktop\glut\include\gl\glut.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
+1497571217 c:\users\alumno-g\desktop\boid\boid.h
+	"Vector3D.h"
+	<vector>
+	<windows.h>
+	<GL/glut.h>
+	<GL/glu.h>
+
+1497570752 c:\users\alumno-g\desktop\boid\vector3d.h
+	<math.h>
+
+1498000074 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\main.cpp
+	<windows.h>
+	<math.h>
+	<GL/glut.h>
+	<iostream>
+	<windows.h>
+	<math.h>
+	<stdlib.h>
+	<stdio.h>
+	<iostream>
+	<sstream>
+	<vector>
+	<time.h>
+	<fstream>
+	<GL/glext.h>
+	"TextureManager.h"
+	"Boid.h"
+
+1498000387 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\boid.h
+	"Vector3D.h"
+	<vector>
+	<windows.h>
+	<GL/glut.h>
+	<GL/glu.h>
+
+1497998266 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\vector3d.h
+	<math.h>
+
+1495755684 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\texturemanager.h
+	<windows.h>
+	<GL/glut.h>
+	<FreeImage.h>
+	<map>
+
+1411098642 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\texturemanager.cpp
+	"TextureManager.h"
+
