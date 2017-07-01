@@ -16,6 +16,7 @@
 #include <sstream>
 #include <vector>
 #include <time.h>
+#include <thread>
 #define SHIP_ROTATE_SPEED 0.05
 #define RAD_TO_DEG(rad) (rad * (180 / M_PI))
 #define DEG_TO_RAD(deg) (deg * (M_PI / 180))
@@ -39,33 +40,80 @@ float var_x = 0.0;
 float var_z = -450.0;
 float step = 0; //0.0 Posicion inicial. 1.0 Traslacion. 2.0 Primera Rotacion(en y). 3.0 Segunda Rotacion (en x) 4.0 Ultima Rotacion (en z)
 GLint texturaMar;
+//Threading
+int mxthreads=thread::hardware_concurrency();
+vector<thread> Threads;
+int nBoids = 100;
+int nSharks = 10;
 class Flock //Cardumen
 {
     public:
     vector<Boid> boids;
     vector<Vector3D> obstaculos;
     Flock() {}
-    void run()
+    void render()
     {
-        for (int i = 0; i < (int)boids.size(); i++)
+        for (int i = 0;i<(int)boids.size(); i++)
         {
-            if(i<=5)
-            {
-                glColor3f(0,0,0);
-            }
-            else
-                glColor3f(0,0,1);
-            boids[i].run(boids,obstaculos);
+            boids[i].render();
         }
         glColor3f(0.4,0.4,0.4);
 //
-//        for (int i = 0; i < (int)obstaculos.size(); i=i+5)
-//        {
-//            glPushMatrix();
-//                glTranslatef(obstaculos[i].x,0.0f,obstaculos[i].y);
-//                glutSolidCube(10);
-//            glPopMatrix();
-//        }
+        /*for (int i = 0; i < (int)obstaculos.size(); i=i+5)
+        {
+            glPushMatrix();
+                glTranslatef(obstaculos[i].x,obstaculos[i].y,obstaculos[i].z);
+                glutSolidCube(10);
+            glPopMatrix();
+        }*/
+    }
+    void run1()
+    {
+        for (int i = 0;i<(int)boids.size(); i++)
+        {
+            boids[i].run(boids,obstaculos);
+        }
+        glColor3f(0.4,0.4,0.4);
+        for (int i = 0; i < (int)obstaculos.size(); i=i+5)
+        {
+            glPushMatrix();
+                glTranslatef(obstaculos[i].x,obstaculos[i].y,obstaculos[i].z);
+                glutSolidCube(10);
+            glPopMatrix();
+        }
+    }
+    void run(int ini,int fin)
+    {
+        //cout<<endl<<"th"<<ini<<fin<<endl;
+        for (int i = ini; i < fin;i++)//(int)boids.size(); i++)
+        {
+            boids[i].run(boids,obstaculos);
+        }
+        //glColor3f(0.4,0.4,0.4);
+//
+        /*for (int i = 0; i < (int)obstaculos.size(); i=i+5)
+        {
+            glPushMatrix();
+                glTranslatef(obstaculos[i].x,obstaculos[i].y,obstaculos[i].z);
+                glutSolidCube(10);
+            glPopMatrix();
+        }*/
+    }
+    void runMultiThreading()
+    {
+        cout<<"here";
+        int incremento = boids.size()/mxthreads;
+        //vector<thread> Threads;
+        for(int i=0;i<mxthreads;i++)
+        {
+            Threads.push_back(thread(&Flock::run,this,incremento*i,incremento*i+incremento));
+
+        }
+        for(int i=0;i<mxthreads;i++)
+            Threads[i].join();
+
+        for (int i = 0;i<(int)boids.size();i++)
+            boids[i].render();
     }
     void addBoid(Boid b)
     {
@@ -119,19 +167,6 @@ GLvoid callback_special(int key, int x, int y)
 		step--;
 		glutPostRedisplay();
 		break;
-    case GLUT_KEY_F1:
-        cout<<"hola"<<endl;
-        flock.addBoid( Boid( Vector3D(0,0),0.1,0.05f));
-        break;
-    case GLUT_KEY_F2:
-        flock.addObst(Vector3D(5,5));
-        flock.addObst(Vector3D(-5,5));
-        flock.addObst(Vector3D(5,-5));
-        flock.addObst(Vector3D(-5,-5));
-        flock.addObst(Vector3D(0,5));
-        flock.addObst(Vector3D(5,0));
-        break;
-
 	}
 }
 GLdouble x=0;
@@ -179,11 +214,12 @@ GLvoid callback_mouse(int button, int state, int x_cursor, int y_cursor)
             int width=400;
             int height=400;
             project(mouse_x,mouse_y);
-            flock.addObst(Vector3D(x,z));
-            flock.addObst(Vector3D(x+10,z+10));
-            flock.addObst(Vector3D(x-10,z+10));
-            flock.addObst(Vector3D(x-10,z-10));
-            flock.addObst(Vector3D(x+10,z-10));
+            y = rand()%200;
+            flock.addObst(Vector3D(x,y,z));
+            flock.addObst(Vector3D(x+10,y,z+10));
+            flock.addObst(Vector3D(x-10,y,z+10));
+            flock.addObst(Vector3D(x-10,y,z-10));
+            flock.addObst(Vector3D(x+10,y,z-10));
         }
     }
     if(button == GLUT_RIGHT_BUTTON)
@@ -195,7 +231,7 @@ GLvoid callback_mouse(int button, int state, int x_cursor, int y_cursor)
             int height=400;
             cout<<mouse_x<<" "<<mouse_y<<endl;
             project(mouse_x,mouse_y);
-            flock.addBoid(Boid( Vector3D(x,z),0.1,0.05f));
+            flock.addBoid(Boid( Vector3D(x,0,z),0.1,0.05f));
         }
     }
 }
@@ -207,12 +243,12 @@ GLvoid callback_motion(int x, int y)
 {
     if(butt)
     {
-    cout<<"x"<<"y"<<endl;
-	delta_x += x - mouse_x;
-	delta_y += y - mouse_y;
-	mouse_x = x;
-	mouse_y = y;
-	glutPostRedisplay();
+        //cout<<"x"<<"y"<<endl;
+        delta_x += x - mouse_x;
+        delta_y += y - mouse_y;
+        mouse_x = x;
+        mouse_y = y;
+        glutPostRedisplay();
     }
 }
 
@@ -221,10 +257,12 @@ int randOP(){
 
 }
 void Iniciar(){
-    for (int i = 0; i < 500; i++)
+    for (int i = 0; i < nBoids; i++)
     {
         flock.addBoid( Boid( Vector3D(randOP(),rand()%200+10,randOP()),0.8,0.1f));
     }
+    for (int i=0;i<nSharks;i++)
+        flock.addBoid( Boid( Vector3D(randOP(),rand()%200+10,randOP()),0.8,0.1f,1));
 }
 int main(int argc, char **argv)
 {
@@ -274,23 +312,9 @@ void Mar(int tamMar, int X, int Y, int Z)
 GLvoid initGL()
 {
 	GLfloat position[] = { 0.0f, 5.0f, 10.0f, 0.0 };
-        srand(time(NULL));
-	//enable light : try without it
-//	glLightfv(GL_LIGHT0, GL_POSITION, position);
-//	glEnable(GL_LIGHTING);
-	//light 0 "on": try without it
-//	glEnable(GL_LIGHT0);
+    srand(time(NULL));
     Iniciar();
-
-	//shading model : try GL_FLAT
-//	glShadeModel(GL_SMOOTH);
-
 	glEnable(GL_DEPTH_TEST);
-
-	//enable material : try without it
-//	glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
-//	glEnable(GL_COLOR_MATERIAL);
-
 	glClearColor(RED, GREEN, BLUE, ALPHA);
 }
 
@@ -301,7 +325,6 @@ GLvoid window_display()
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
     gluPerspective(45.0f, 1.0f, 0.01f, 1000.0f);
-//	glOrtho(-150.0f, 150.0f, -150.0f, 150.0f, -150.0f, 150.0f);
     glTranslatef(var_x, 0.0, var_z);
 	glRotatef(delta_x, 0.0, 1.0, 0.0);
 	glRotatef(delta_y, 1.0, 0.0, 0.0);
@@ -311,8 +334,11 @@ GLvoid window_display()
         glColor3f(0.0f, 0.0f, 1.0f);
         glVertex3f(0.0f, 0.0f, 0.0f);
         glVertex3f(x, y,z);
-        glEnd();
-    flock.run();
+    glEnd();
+    //flock.runMultiThreading();
+    flock.run1();
+    //flock.render();
+    //flock.run(0,flock.boids.size());
     glutSwapBuffers();
 	glFlush();
 }

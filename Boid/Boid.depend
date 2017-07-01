@@ -28,7 +28,7 @@
 1497570752 c:\users\alumno-g\desktop\boid\vector3d.h
 	<math.h>
 
-1498000074 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\main.cpp
+1498878532 source:f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\main.cpp
 	<windows.h>
 	<math.h>
 	<GL/glut.h>
@@ -41,20 +41,22 @@
 	<sstream>
 	<vector>
 	<time.h>
+	<thread>
 	<fstream>
 	<GL/glext.h>
 	"TextureManager.h"
 	"Boid.h"
 
-1498000387 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\boid.h
+1498878672 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\boid.h
 	"Vector3D.h"
 	<vector>
 	<windows.h>
 	<GL/glut.h>
 	<GL/glu.h>
 
-1497998266 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\vector3d.h
+1498862139 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\vector3d.h
 	<math.h>
+	<iostream>
 
 1495755684 f:\sebastian\documents\sanpa\8semestre\computacion grafica\practica\computaciongrafica\boid\texturemanager.h
 	<windows.h>

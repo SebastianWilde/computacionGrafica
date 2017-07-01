@@ -1,6 +1,8 @@
 #ifndef VECTOR3D_H_INCLUDED
 #define VECTOR3D_H_INCLUDED
 #include <math.h>
+#include <iostream>
+using namespace std;
 struct Point
 {
     float x;
@@ -16,7 +18,7 @@ struct Point
     {
         x = X;
         y = Y;
-        z=Z;
+        z = Z;
     }
 };
  class Vector3D
@@ -130,7 +132,9 @@ struct Point
     }
     float heading2D()
     {
-        float angle = (float) atan2(z, x);
+        float angle = (float) atan2(z,x);
+        if (angle == 0) return 0.0;
+        //cout <<endl<<angle*-1;
         return -1*angle;
     }
 
@@ -203,9 +207,9 @@ Vector3D& Vector3D::operator /= (const float p)
     return *this;
 }
 Vector3D Vector3D::operator - (Vector3D v2)
-    {
+{
         Vector3D v =  Vector3D(x - v2.x,y - v2.y,z - v2.z);
         return v;
-    }
+}
 
 #endif // VECTOR3D_H_INCLUDED

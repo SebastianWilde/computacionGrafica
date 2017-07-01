@@ -22,9 +22,10 @@ class Boid
     float r;
     float maxforce;
     float maxspeed;
+    bool shark;
     public:
     Boid(){}
-    Boid(Vector3D l, float ms, float mf)
+    Boid(Vector3D l, float ms, float mf, bool sh = 0)
     {
         aceleracion =  Vector3D(0,0,0);
         velocidad =  Vector3D((rand()%10)/100,(rand()%10)/100,0.05/*random(-1,1),random(-1,1)*/);
@@ -32,22 +33,36 @@ class Boid
         r = 2.0f;
         maxspeed = ms;
         maxforce = mf;
-//        texturaPez = TextureManager::Inst()->LoadTexture("texturaPex.jpg",GL_BGR_EXT,GL_RGB);
+        shark = sh;
     }
-    void run(vector<Boid> boids,vector<Vector3D> obstaculos)
+    void run(vector<Boid> &boids,vector<Vector3D> obstaculos)//,vector<Boid> sharks)
     {
-        flock(boids,obstaculos);
+        if (shark==0)
+            flock(boids,obstaculos);//,sharks);
+        else
+            flock_sharck(boids,obstaculos);//,sharks)
         update();
         borders();
         render();
     }
-    void flock(vector<Boid> boids,vector<Vector3D> obstaculos)
+    void flock_sharck(vector<Boid> &boids,vector<Vector3D> obstaculos)//,vector<Boid> sharks)
     {
-        Vector3D sep = separacion(boids,obstaculos);   // Separation
+        Vector3D sep = separacion_shark(boids,obstaculos);//,sharks);   // Separation
+        Vector3D coh = cohesion_shark(boids);   // Cohesion
+        glColor3f(0.0f, 0.0f, 0.0f);
+        // Arbitrarily weight these forces
+        sep.mult(2.0f);
+        coh.mult(1.0f);
+        aceleracion.add(sep);
+        aceleracion.add(coh);
+    }
+    void flock(vector<Boid> &boids,vector<Vector3D> obstaculos)//,vector<Boid> sharks)
+    {
+        Vector3D sep = separacion(boids,obstaculos);//,sharks);   // Separation
         Vector3D ali = alineacion(boids);      // Alignment
         Vector3D coh = cohesion(boids);   // Cohesion
-             glColor3f(0.0f, 0.0f, 0.0f);
-    // Arbitrarily weight these forces
+        glColor3f(0.0f, 0.0f, 0.0f);
+        // Arbitrarily weight these forces
         sep.mult(2.0f);
         ali.mult(1.0f);
         coh.mult(1.0f);
@@ -58,15 +73,15 @@ class Boid
 
     void update()
     {
-    // Update velocity
+        // Update velocity
         times = glutGet(GLUT_ELAPSED_TIME);
         float dt = float (times -timebase)/10.0;
         timebase= times;
         velocidad.add(aceleracion*dt);
-    // Limit speed
+        // Limit speed
         velocidad.limit(maxspeed);
         pos.add(velocidad*1);
-    // Reset accelertion to 0 each cycle
+        // Reset accelertion to 0 each cycle
         aceleracion.setXYZ(0,0,0);
     }
     void seek(Vector3D target)
@@ -108,6 +123,9 @@ class Boid
             glTranslatef(pos.x,pos.y,pos.z);
             glRotatef((float)RAD_TO_DEG(theta), 0.0f, 1.0f,0.0f );
             glTranslatef(0,0,-r*2);
+            if (shark==0)
+                glColor3f(1.0,0.5,0.0);
+            else  glColor3f(1.0,0.0,5.0);
             glutSolidCone(r,r*4,32,32);
         glPopMatrix();
     }
@@ -124,7 +142,7 @@ class Boid
     }
 
   // Separacion
-    Vector3D separacion (vector<Boid> boids,vector<Vector3D> obstaculos)
+    Vector3D separacion (vector<Boid> &boids,vector<Vector3D> obstaculos )//,vector<Boid>sharks)
     {
         float cercania = 25.0f;
         Vector3D sum =  Vector3D(0,0,0);
@@ -170,23 +188,79 @@ class Boid
         }
         return sum;
     }
+      // Separacion shark
+    Vector3D separacion_shark (vector<Boid> &boids,vector<Vector3D> obstaculos )//,vector<Boid>sharks)
+    {
+        float cercania = 25.0f;
+        Vector3D sum =  Vector3D(0,0,0);
+        int cont = 0;
+        for (int i = 0 ; i < (int)boids.size(); i++)
+        {
+            if (boids[i].shark==1)
+            {
+                Boid other = (Boid) boids[i];
+                float d = pos.distance(pos,other.pos);
+                if ((d > 0) && (d < cercania))
+                {
+                    // Calculate vector pointing away from neighbor
+                    //Vector3D diff = pos.sub(pos,other.pos);
+                    Vector3D diferencia = pos-other.pos;
+                    diferencia.normalize();
+                    //diferencia.div(d);        // Weight by distance
+                    diferencia/=d;
+                   // sum.add(diferencia);
+                    sum+=diferencia;
+                    cont++;            // Keep track of how many
+                }
+            }
+
+        }
+        for (int i = 0 ; i < (int)obstaculos.size(); i++)
+        {
+            Vector3D other = (Vector3D) obstaculos[i];
+            float d = pos.distance(pos,other);
+            if ((d > 0) && (d < cercania))
+            {
+                // Calculate vector pointing away from neighbor
+                Vector3D diferencia = pos.sub(pos,other);
+                diferencia.normalize();
+                diferencia/=d;
+                sum+=diferencia;
+                //diferencia.div(d);        // Weight by distance
+                //sum.add(diferencia);
+                cont++;            // Keep track of how many
+            }
+        }
+        // Average -- divide by how many
+        if (cont > 0)
+        {
+            //sum.div((float)cont);
+            sum/=((float)cont);
+        }
+        return sum;
+    }
+
 
   // Alineacion - velocidad media
-    Vector3D alineacion (vector<Boid> boids)
+    Vector3D alineacion (vector<Boid> &boids)
     {
         float rango = 50.0f;
         Vector3D sum =  Vector3D(0,0,0);
         int cont = 0;
         for (int i = 0 ; i < (int)boids.size(); i++)
         {
-            Boid other = (Boid) boids[i];
-            float d = pos.distance(pos,other.pos);
-            if ((d > 0) && (d < rango))
+            if (boids[i].shark ==0)
             {
-                //sum.add(other.velocidad);
-                sum+=other.velocidad;
-                cont++;
+                Boid other = (Boid) boids[i];
+                float d = pos.distance(pos,other.pos);
+                if ((d > 0) && (d < rango))
+                {
+                    //sum.add(other.velocidad);
+                    sum+=other.velocidad;
+                    cont++;
+                }
             }
+
         }
         if (cont > 0)
         {
@@ -198,25 +272,58 @@ class Boid
     }
 
   // Cohesion
-    Vector3D cohesion (vector<Boid>boids)
+    Vector3D cohesion (vector<Boid>&boids)
     {
         float rango = 50.0f;
         Vector3D sum =  Vector3D(0,0,0);   // Start with empty vector to accumulate all locations
         int cont = 0;
         for (int i = 0 ; i < (int)boids.size(); i++)
         {
-            Boid other = (Boid) boids[i];
-            float d = pos.distance(pos,other.pos);
-            if ((d >= 0) && (d < rango))
+            if (boids[i].shark==0)
             {
-                sum.add(other.pos); // Add location
-                cont++;
+                Boid other = (Boid) boids[i];
+                float d = pos.distance(pos,other.pos);
+                if ((d >= 0) && (d < rango))
+                {
+                    sum.add(other.pos); // Add location
+                    cont++;
+                }
             }
+
         }
         if (cont > 0)
         {
             sum/=((float)cont);
             return steer(sum,false);  // Steer towards the location
+        }
+        return sum;
+    }
+
+    // Cohesion shark
+    Vector3D cohesion_shark (vector<Boid>&boids)
+    {
+        float rango = 50.0f;
+        Vector3D sum =  Vector3D(0,0,0);   // Start with empty vector to accumulate all locations
+        int cont = 0;
+        for (int i = 0 ; i < (int)boids.size(); i++)
+        {
+            if (boids[i].shark==0)
+            {
+                Boid other = (Boid) boids[i];
+                float d = pos.distance(pos,other.pos);
+                if ((d >= 0) && (d < rango))
+                {
+                    velocidad = other.velocidad*2;
+                }
+                if (d>=0 & d<5)
+                {
+                    cout<<boids.size()<<endl;
+                    boids.erase(boids.begin()+i);
+                    cout<<"Shark ate fish"<<endl;
+                    cout<<boids.size()<<endl;
+                }
+            }
+
         }
         return sum;
     }
